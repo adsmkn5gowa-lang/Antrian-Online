@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antrian Online Publik Gold</title>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; max-width: 500px; margin: 20px auto; padding: 15px; background:#f0f2f5; }
+.card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  h2 { text-align: center; color: #1e40af; }
+  input, select, button { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+  button { background: #2563eb; color: white; font-weight: bold; border: none; }
+  button:disabled { background: #9ca3af; }
+.nomor { font-size: 64px; text-align: center; font-weight: 800; color: #2563eb; margin: 10px 0; }
+.alert { color: #dc2626; text-align: center; font-weight: bold; margin-top:10px; }
+.loader { display:none; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🎫 Ambil Nomor Antrian</h2>
+  <form id="formAntrian">
+    <label>Nama Lengkap</label>
+    <input type="text" id="nama" required>
+
+    <label>NISN</label>
+    <input type="number" id="nisn" required>
+
+    <label>Keperluan</label>
+    <select id="keperluan" required>
+      <option value="">-- Pilih --</option>
+      <option>Ambil Ijazah</option>
+      <option>Surat Keterangan</option>
+      <option>Legalisir Ijazah</option>
+      <option>Pengesahan</option>
+      <option>Lainnya</option>
+    </select>
+
+    <button type="submit" id="btnAmbil">Ambil Nomor</button>
+    <div class="loader" id="loader">Memproses...</div>
+    <div class="alert" id="alert"></div>
+  </form>
+</div>
+
+<div class="card" id="hasilCard" style="display:none;">
+  <h2>Simpan Nomor Anda</h2>
+  <div class="nomor" id="nomorAntrian"></div>
+  <p style="text-align:center;">Tanggal: <span id="tglAntrian"></span></p>
+</div>
+
+<script>
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzoM_pJ3-yFc_DG8Hvh4tsoFJuphkCUhYWdHbe3CpHPsw8fGA9iLpNyLS0tQySP_VJa/exec"; // <-- GANTI INI
+
+document.getElementById('formAntrian').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('btnAmbil');
+  const loader = document.getElementById('loader');
+  const alertBox = document.getElementById('alert');
+
+  btn.disabled = true;
+  loader.style.display = 'block';
+  alertBox.innerText = "";
+
+  const data = {
+    nama: document.getElementById('nama').value.trim(),
+    nisn: document.getElementById('nisn').value.trim(),
+    keperluan: document.getElementById('keperluan').value
+  };
+
+  try {
+    const res = await fetch(URL_SCRIPT, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+
+    if(result.status === "success") {
+      document.getElementById('nomorAntrian').innerText = result.nomor;
+      document.getElementById('tglAntrian').innerText = new Date(result.tanggal).toLocaleDateString('id-ID', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+      document.getElementById('hasilCard').style.display = 'block';
+      document.getElementById('formAntrian').reset();
+    } else if(result.status === "full") {
+      alertBox.innerText = result.message;
+      btn.disabled = true;
+    } else {
+      alertBox.innerText = "Gagal: " + result.message;
+    }
+  } catch (err) {
+    alertBox.innerText = "Koneksi gagal. Coba lagi.";
+  } finally {
+    loader.style.display = 'none';
+    btn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
