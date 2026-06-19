@@ -92,8 +92,12 @@ button:disabled{
 }
 
 .info{
-    text-align:center;
+    text-align:left;
     color:#374151;
+}
+
+.info p{
+    margin:8px 0;
 }
 </style>
 </head>
@@ -104,7 +108,7 @@ button:disabled{
 
     <img src="Logo.png" class="logo" alt="Logo Sekolah">
 
-    <h2>Ambil Nomor Antrian</h2>
+    <h2>🎫 Ambil Nomor Antrian</h2>
 
     <form id="formAntrian">
 
@@ -157,18 +161,20 @@ button:disabled{
 
     <div class="info">
         <p><strong>Nama:</strong> <span id="hasilNama"></span></p>
+        <p><strong>NISN:</strong> <span id="hasilNisn"></span></p>
         <p><strong>Jurusan:</strong> <span id="hasilJurusan"></span></p>
         <p><strong>Keperluan:</strong> <span id="hasilKeperluan"></span></p>
         <p><strong>Tanggal:</strong> <span id="tglAntrian"></span></p>
         <p><strong>Waktu:</strong> <span id="wktAntrian"></span></p>
-        <p><strong>Screenshoot nomor antrian sebagai bukti untuk pengurusan berkas</strong></p>
+        <p><strong>Mohon screenshot halaman ini sebagai bukti antrian.</strong></p>
     </div>
 
 </div>
 
 <script>
 
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyAiFQqSVF8fY0DHiyTIQ8NCyq4s0Xl33L1p6o4X_c2ywDandKt2b2uo9DY1-9bDSi4/exec";
+// GANTI DENGAN URL WEB APP APPS SCRIPT ANDA
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbx4joK1uL7tkZ5FAyLmP4w5med5pQX1Nhvmwgpuyi_nA4kO_k5WHRCoU82hzxSK8y69/exec";
 
 document.getElementById('formAntrian').addEventListener('submit', async function(e){
 
@@ -202,42 +208,62 @@ document.getElementById('formAntrian').addEventListener('submit', async function
 
         const result = await response.json();
 
-        if(result.status === "success"){
+        console.log(result);
 
-              document.getElementById('hasilNama').innerText =
-                result.nama;
+        if(
+            result.status === "success" ||
+            result.status === "duplicate"
+        ){
+
+            document.getElementById('hasilNama').innerText =
+                result.nama || '-';
+
+            document.getElementById('hasilNisn').innerText =
+                result.nisn || '-';
 
             document.getElementById('nomorAntrian').innerText =
-                result.nomor;
+                result.nomor || '-';
 
             document.getElementById('hasilJurusan').innerText =
-                data.jurusan;
+                result.jurusan || '-';
 
             document.getElementById('hasilKeperluan').innerText =
-                data.keperluan;
+                result.keperluan || '-';
 
-            document.getElementById('tglAntrian').innerText =
-                new Date(result.tanggal)
-                .toLocaleDateString('id-ID',{
-                    weekday:'long',
-                    day:'2-digit',
-                    month:'long',
-                    year:'numeric'
-                });
+            if(result.tanggal){
 
-            document.getElementById('wktAntrian')
-            innerText = 
-                result.waktu;
+                document.getElementById('tglAntrian').innerText =
+                    new Date(result.tanggal)
+                    .toLocaleDateString('id-ID',{
+                        weekday:'long',
+                        day:'2-digit',
+                        month:'long',
+                        year:'numeric'
+                    });
+
+            } else {
+
+                document.getElementById('tglAntrian').innerText = '-';
+
+            }
+
+            document.getElementById('wktAntrian').innerText =
+                result.waktu || '-';
 
             document.getElementById('hasilCard').style.display =
                 'block';
+
+            if(result.status === "duplicate"){
+                alertBox.innerText = result.message;
+            }
 
             document.getElementById('formAntrian').reset();
 
         }
         else if(result.status === "full"){
 
-            alertBox.innerText = result.message;
+            alertBox.innerText =
+                result.message;
 
         }
         else{
