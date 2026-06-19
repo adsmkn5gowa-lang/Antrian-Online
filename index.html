@@ -156,9 +156,11 @@ button:disabled{
     <div class="nomor" id="nomorAntrian"></div>
 
     <div class="info">
+        <p><strong>Nama:</strong> <span id="hasilNama"></span></p>
         <p><strong>Jurusan:</strong> <span id="hasilJurusan"></span></p>
         <p><strong>Keperluan:</strong> <span id="hasilKeperluan"></span></p>
         <p><strong>Tanggal:</strong> <span id="tglAntrian"></span></p>
+        <p><strong>Waktu:</strong> <span id="wktAntrian"></span></p>
         <p><strong>Screenshoot nomor antrian sebagai bukti untuk pengurusan berkas</strong></p>
     </div>
 
@@ -166,7 +168,7 @@ button:disabled{
 
 <script>
 
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwcCbWN_4lB5l8qOWnyQ_EtOR--ibYhg42aZO1aLe6af1qxE_Rpnj8irlcTZOBPsJOH/exec";
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyAiFQqSVF8fY0DHiyTIQ8NCyq4s0Xl33L1p6o4X_c2ywDandKt2b2uo9DY1-9bDSi4/exec";
 
 document.getElementById('formAntrian').addEventListener('submit', async function(e){
 
@@ -202,6 +204,9 @@ document.getElementById('formAntrian').addEventListener('submit', async function
 
         if(result.status === "success"){
 
+              document.getElementById('hasilNama').innerText =
+                result.nama;
+
             document.getElementById('nomorAntrian').innerText =
                 result.nomor;
 
@@ -219,6 +224,9 @@ document.getElementById('formAntrian').addEventListener('submit', async function
                     month:'long',
                     year:'numeric'
                 });
+
+            document.getElementById('wktAntrian')
+            innerText = result.waktu;
 
             document.getElementById('hasilCard').style.display =
                 'block';
